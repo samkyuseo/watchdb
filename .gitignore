@@ -1,5 +1,5 @@
 venv
-**/outputs/*.json
+**/data/*.json
 **/__pycache__
 **/service_account.json
 **/logs/*.txt
