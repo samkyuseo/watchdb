@@ -13,4 +13,4 @@ pip install -r requirements.txt
 
 ## APIs
 
-Not started yet.
+Not started yet. For now, look at `back` folder in `github.com/samkyuseo/watchstreet`
