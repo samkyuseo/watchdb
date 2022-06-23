@@ -43,6 +43,10 @@ class CrownAndCaliber(scrapy.Spider):
             )
 
     def parse_watch(self, response):
+        sold_out = (
+            len(response.css('button#add-to-cart-btn:contains("Sold out")').getall())
+            != 0
+        )
         has_nickname = len(response.css("span.main-product-name::text").getall()) == 2
         prod_specs = response.css("div.prod-specs > div")
         specs = {}
@@ -59,7 +63,9 @@ class CrownAndCaliber(scrapy.Spider):
                 specs[snake_case_key] = value
         yield {
             "brand": response.css("span.vendor::text").get().strip(),
-            "price": response.css("span.current-price::text").get().strip(),
+            "price": None
+            if sold_out
+            else response.css("span.current-price::text").get().strip(),
             "model": response.css("span.main-product-name::text").get().strip(),
             "nickname": None
             if not has_nickname

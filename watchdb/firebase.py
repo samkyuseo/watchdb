@@ -48,10 +48,12 @@ class JSONOutputParser:
             if watch.get("brand") is None or watch.get("reference") is None:
                 continue
             # format: brand.reference
+            # " " -> "_"
+            # "/" -> "slash"
             key = (
-                watch["brand"].lower().replace(" ", "")
-                + "."
-                + watch["reference"].lower()
+                watch["brand"].lower().replace(" ", "_")
+                + "+"
+                + watch["reference"].lower().replace("/", "#")
             )
             # Values tied to reference number
             if self.parsed_data.get(key) == None:
@@ -70,24 +72,25 @@ class JSONOutputParser:
                     "case_thickness": watch.get("case_thickness"),
                     "price_data": [],
                 }
-            self.parsed_data[key]["price_data"].append(
-                {
-                    "price": watch.get("price"),
-                    "date": watch.get("date"),
-                    "condition": watch.get("condition"),
-                    "url": watch.get("url"),
-                    "box": watch.get("box"),
-                    "paper": watch.get("paper"),
-                    "manual": watch.get("manual"),
-                    "paper_date": watch.get("paper_date"),
-                    "approximate_age": watch.get("approximate_age"),
-                    "dial_color": watch.get("dial_color"),
-                    "year": watch.get("year"),
-                    "case_material": watch.get("case_material"),
-                    "bracelet": watch.get("bracelet"),
-                    "case_back": watch.get("case_back"),
-                }
-            )
+            if watch.get("price") is not None:
+                self.parsed_data[key]["price_data"].append(
+                    {
+                        "price": watch.get("price"),
+                        "date": watch.get("date"),
+                        "condition": watch.get("condition"),
+                        "url": watch.get("url"),
+                        "box": watch.get("box"),
+                        "paper": watch.get("paper"),
+                        "manual": watch.get("manual"),
+                        "paper_date": watch.get("paper_date"),
+                        "approximate_age": watch.get("approximate_age"),
+                        "dial_color": watch.get("dial_color"),
+                        "year": watch.get("year"),
+                        "case_material": watch.get("case_material"),
+                        "bracelet": watch.get("bracelet"),
+                        "case_back": watch.get("case_back"),
+                    }
+                )
 
     def export_to_file(self) -> None:
         """Export parsed output to a file."""
@@ -105,6 +108,7 @@ class JSONOutputParser:
         """
         watches_ref = self.db.collection("watches")
         for id, watch in self.parsed_data.items():
+            print(id)
             doc_ref = watches_ref.document(id)
             if doc_ref.get().exists:
                 # Only adds unique price_data objects, if not unique, doesn't add them
@@ -129,8 +133,8 @@ class JSONOutputParser:
 def main():
     op = JSONOutputParser()
     op.parse()
-    op.export_to_file()
-    # op.upload_to_firebase()
+    # op.export_to_file()
+    op.upload_to_firebase()
 
 
 if __name__ == "__main__":
